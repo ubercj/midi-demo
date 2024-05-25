@@ -1,120 +1,46 @@
+import { addElement, updateElement } from "./dom.js";
+import {
+  parseMIDImessage,
+  NOTE_OFF,
+  isNoteCommand,
+  displayNote,
+} from "./midi.js";
+
 const inputDataContainer = document.getElementById("input-data");
 const outputDataContainer = document.getElementById("output-data");
-const notesContainer = document.getElementById("notes");
+const enabledMessage = document.getElementById("enabled");
 const eventLogContainer = document.getElementById("event-log");
 
-/**
- * DOM manipulation
- */
-
-const addElement = (parent, tag, content, id) => {
-  const newElement = document.createElement(tag);
-  if (id) {
-    newElement.id = id;
-  }
-  newElement.textContent = content;
-  parent.appendChild(newElement);
-};
-
-const updateElement = (el, content) => {
-  el.textContent = content;
-};
+let synth;
+const now = Tone.now();
 
 const clearLogButton = document.getElementById("clear-log");
-clearLogButton.addEventListener("click", () => {
+clearLogButton?.addEventListener("click", () => {
   updateElement(eventLogContainer, "");
 });
 
-/**
- * MIDI event handlers
- */
+const playButton = document.getElementById("play");
+playButton?.addEventListener("click", async () => {
+  await Tone.start();
+  synth = new Tone.PolySynth(Tone.FMSynth).toDestination();
 
-const NOTE_ON = "Note start";
-const NOTE_OFF = "Note stop";
-const PITCH_BEND = "Pitch_bend";
-const EFFECTS = "Effects";
-
-const parseCommand = (command) => {
-  switch (command) {
-    case 144:
-      return NOTE_ON;
-    case 128:
-      return NOTE_OFF;
-    case 224:
-      return PITCH_BEND;
-    case 176:
-      return EFFECTS;
-    default:
-      return command;
-  }
-};
-
-const getPitchName = (pitch) => {
-  switch (pitch) {
-    case 0:
-      return "C";
-    case 1:
-      return "C#/Db";
-    case 2:
-      return "D";
-    case 3:
-      return "D#/Eb";
-    case 4:
-      return "E";
-    case 5:
-      return "F";
-    case 6:
-      return "F#/Gb";
-    case 7:
-      return "G";
-    case 8:
-      return "G#/Ab";
-    case 9:
-      return "A";
-    case 10:
-      return "A#/Bb";
-    case 11:
-      return "B";
-    default:
-      return "Error parsing pitch";
-  }
-};
-
-const getNoteName = (note) => {
-  const octave = Math.floor(note / 12) - 2;
-  const pitchNumber = note % 12;
-
-  const pitch = getPitchName(pitchNumber);
-  return `${pitch}${octave}`;
-};
-
-const parseMIDImessage = (midiMessage) => {
-  const commandData = midiMessage.data[0];
-  const noteData = midiMessage.data[1];
-  const velocity = midiMessage.data[2];
-
-  const command = parseCommand(commandData);
-  const note =
-    command === NOTE_ON || command === NOTE_OFF
-      ? getNoteName(noteData)
-      : noteData;
-
-  return { command, note, velocity };
-};
+  enabledMessage.textContent = "Audio enabled";
+});
 
 const onMIDImessage = (event) => {
-  const { command, note, velocity } = parseMIDImessage(event);
-  const logMessage = `${event.timeStamp} | ${command}: ${note} ${velocity}`;
+  const midiMessage = parseMIDImessage(event);
+  const logMessage = `${event.timeStamp} | ${midiMessage.command}: ${midiMessage.note} ${midiMessage.velocity}`;
   console.log(logMessage);
+  addElement(eventLogContainer, "p", logMessage);
 
-  const parentNode = note ? notesContainer : eventLogContainer;
-  const messageId = note || command;
+  if (!isNoteCommand(midiMessage.command)) return;
 
-  const existingNote = document.getElementById(messageId);
-  if (existingNote && command === NOTE_OFF) {
-    existingNote.remove();
+  displayNote(midiMessage);
+
+  if (midiMessage.command === NOTE_OFF) {
+    synth.triggerRelease(midiMessage.note, now);
   } else {
-    addElement(parentNode, "p", logMessage, messageId);
+    synth.triggerAttack(midiMessage.note, now);
   }
 };
 

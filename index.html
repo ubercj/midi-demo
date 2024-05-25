@@ -10,7 +10,22 @@
         display: flex;
         flex-direction: column;
       }
+
+      .notes {
+        min-block-size: 6rem;
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .button {
+        inline-size: fit-content;
+      }
+
+      p {
+        margin: 1rem 0;
+      }
     </style>
+    <script src="https://unpkg.com/tone"></script>
   </head>
   <body>
     <main>
@@ -26,13 +41,15 @@
         </div>
       </div>
       <div class="container">
+        <p id="enabled">Audio not enabled</p>
+        <button id="play" class="button">Enable Audio</button>
         <div class="container">
           <h2>Notes</h2>
-          <div id="notes"></div>
+          <div id="notes" class="notes"></div>
         </div>
         <div class="container">
           <h2>Event Log</h2>
-          <button id="clear-log">Clear Log</button>
+          <button id="clear-log" class="button">Clear Log</button>
           <div id="event-log"></div>
         </div>
       </div>

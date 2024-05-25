@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web MIDI API Demo</title>
+
+    <style>
+      .container {
+        display: flex;
+        flex-direction: column;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Web MIDI API Demo</h1>
+      <div class="container">
+        <div>
+          <h2>Input Information</h2>
+          <div id="input-data"></div>
+        </div>
+        <div>
+          <h2>Output Information</h2>
+          <div id="output-data"></div>
+        </div>
+      </div>
+      <div class="container">
+        <div class="container">
+          <h2>Notes</h2>
+          <div id="notes"></div>
+        </div>
+        <div class="container">
+          <h2>Event Log</h2>
+          <button id="clear-log">Clear Log</button>
+          <div id="event-log"></div>
+        </div>
+      </div>
+    </main>
+
+    <script src="./index.js" type="module" />
+  </body>
+</html>

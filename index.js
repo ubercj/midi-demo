@@ -6,6 +6,8 @@ import {
   displayNote,
 } from "./midi.js";
 
+console.log("JS loaded");
+
 const inputDataContainer = document.getElementById("input-data");
 const outputDataContainer = document.getElementById("output-data");
 const enabledMessage = document.getElementById("enabled");
@@ -73,6 +75,7 @@ const logInputsAndOutputs = (midiAccess) => {
 };
 
 const initMidi = async () => {
+  console.log("initMidi");
   try {
     const midiAccess = await navigator.requestMIDIAccess();
     onMIDISuccess(midiAccess);
